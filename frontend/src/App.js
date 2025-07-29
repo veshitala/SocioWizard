@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import AnswerPractice from './pages/AnswerPractice';
 import Evaluate from './pages/Evaluate';
 import Progress from './pages/Progress';
+import SyllabusProgress from './pages/SyllabusProgress';
 import PYQs from './pages/PYQs';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path="/practice" element={<AnswerPractice />} />
         <Route path="/evaluate" element={<Evaluate />} />
         <Route path="/progress" element={<Progress />} />
+        <Route path="/syllabus-progress" element={<SyllabusProgress />} />
         <Route path="/pyqs" element={<PYQs />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

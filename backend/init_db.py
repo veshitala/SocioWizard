@@ -15,6 +15,27 @@ db.init_app(app)
 bcrypt.init_app(app)
 
 # Define models inline to avoid import issues
+class SyllabusTopic(db.Model):
+    """Main topics in UPSC CSE Sociology syllabus"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False, unique=True)
+    code = db.Column(db.String(20), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+    weightage = db.Column(db.Float, default=1.0)
+    order_index = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+class SyllabusSubtopic(db.Model):
+    """Subtopics within main topics"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    code = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    weightage = db.Column(db.Float, default=1.0)
+    order_index = db.Column(db.Integer, default=0)
+    topic_id = db.Column(db.Integer, db.ForeignKey('syllabus_topic.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -31,6 +52,9 @@ class Question(db.Model):
     topic = db.Column(db.String(100), nullable=False)
     marks = db.Column(db.Integer, default=10)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    # Syllabus mapping
+    syllabus_topic_id = db.Column(db.Integer, db.ForeignKey('syllabus_topic.id'), nullable=True)
+    syllabus_subtopic_id = db.Column(db.Integer, db.ForeignKey('syllabus_subtopic.id'), nullable=True)
 
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,4 +110,9 @@ with app.app_context():
     
     db.session.commit()
     print("Sample questions added!")
+    
+    # Seed UPSC CSE Sociology syllabus
+    from app.services.syllabus_service import seed_upsc_sociology_syllabus
+    seed_upsc_sociology_syllabus()
+    
     print("Database initialized successfully!")

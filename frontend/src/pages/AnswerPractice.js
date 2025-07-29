@@ -56,6 +56,7 @@ const AnswerPractice = () => {
     setLoading(true);
     try {
       const response = await apiService.getRandomQuestion(filters);
+      console.log('Fetched question:', response.question);
       setCurrentQuestion(response.question);
       setAnswerText('');
     } catch (error) {
@@ -238,8 +239,9 @@ const AnswerPractice = () => {
           value={answerText}
           onChange={(e) => setAnswerText(e.target.value)}
           placeholder="Write your answer here... Start with an introduction, develop your arguments with examples and theories, and conclude with a summary of your main points."
-          className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+          className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-gray-900"
           disabled={!currentQuestion}
+          style={{ minHeight: '400px' }}
         />
         
         <div className="mt-4 flex justify-between items-center">

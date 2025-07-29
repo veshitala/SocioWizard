@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   LogOut,
-  User
+  User,
+  Target
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -24,6 +25,7 @@ const Layout = ({ children }) => {
     { name: 'Answer Practice', href: '/practice', icon: BookOpen },
     { name: 'Evaluate', href: '/evaluate', icon: CheckCircle },
     { name: 'Track Progress', href: '/progress', icon: BarChart3 },
+    { name: 'Syllabus Progress', href: '/syllabus-progress', icon: Target },
     { name: 'PYQs', href: '/pyqs', icon: FileText },
   ];
 

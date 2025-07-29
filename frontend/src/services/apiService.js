@@ -102,4 +102,25 @@ export const apiService = {
     const response = await api.get('/progress/streak');
     return response.data;
   },
+
+  // Syllabus Progress
+  async getSyllabusOverview() {
+    const response = await api.get('/syllabus-progress/syllabus-overview');
+    return response.data;
+  },
+
+  async getTopicSubtopicsProgress(topicId) {
+    const response = await api.get(`/syllabus-progress/topic/${topicId}/subtopics`);
+    return response.data;
+  },
+
+  async getStrengthAnalysis() {
+    const response = await api.get('/syllabus-progress/strength-analysis');
+    return response.data;
+  },
+
+  async getRecommendations() {
+    const response = await api.get('/syllabus-progress/recommendations');
+    return response.data;
+  },
 }; 

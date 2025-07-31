@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.answer import Answer
 from app.models.question import Question
 from app.services.evaluation_service import evaluate_answer
+from app.services.similarity_service import SimilarityAnalysisService
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -61,11 +62,28 @@ def submit_answer():
         
         db.session.commit()
         
-        return jsonify({
-            'message': 'Answer submitted and evaluated successfully',
-            'answer': new_answer.to_dict(),
-            'evaluation': evaluation_result
-        }), 201
+        # Trigger topper analysis
+        try:
+            similarity_service = SimilarityAnalysisService()
+            analysis_result = similarity_service.analyze_user_answer(new_answer.id)
+            
+            # Add analysis info to response
+            response_data = {
+                'message': 'Answer submitted and evaluated successfully',
+                'answer': new_answer.to_dict(),
+                'evaluation': evaluation_result,
+                'topper_analysis': analysis_result if 'error' not in analysis_result else None
+            }
+        except Exception as analysis_error:
+            print(f"Topper analysis failed: {analysis_error}")
+            response_data = {
+                'message': 'Answer submitted and evaluated successfully',
+                'answer': new_answer.to_dict(),
+                'evaluation': evaluation_result,
+                'topper_analysis': None
+            }
+        
+        return jsonify(response_data), 201
         
     except Exception as e:
         db.session.rollback()

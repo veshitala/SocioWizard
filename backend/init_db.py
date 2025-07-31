@@ -74,6 +74,38 @@ class Answer(db.Model):
     submitted_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     evaluated_at = db.Column(db.DateTime, nullable=True)
 
+class TopperAnswer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    topper_name = db.Column(db.String(100), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    rank = db.Column(db.Integer, nullable=True)
+    marks_obtained = db.Column(db.Float, nullable=True)
+    answer_text = db.Column(db.Text, nullable=False)
+    keywords_used = db.Column(db.Text, nullable=True)
+    thinkers_mentioned = db.Column(db.Text, nullable=True)
+    theories_referenced = db.Column(db.Text, nullable=True)
+    word_count = db.Column(db.Integer, nullable=True)
+    structure_score = db.Column(db.Float, nullable=True)
+    content_depth = db.Column(db.Float, nullable=True)
+    sociological_relevance = db.Column(db.Float, nullable=True)
+    answer_embedding = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+class AnswerSimilarity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
+    topper_answer_id = db.Column(db.Integer, db.ForeignKey('topper_answer.id'), nullable=False)
+    overall_similarity = db.Column(db.Float, nullable=False)
+    content_similarity = db.Column(db.Float, nullable=True)
+    structure_similarity = db.Column(db.Float, nullable=True)
+    keyword_similarity = db.Column(db.Float, nullable=True)
+    theory_similarity = db.Column(db.Float, nullable=True)
+    feedback_text = db.Column(db.Text, nullable=True)
+    improvement_suggestions = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
 with app.app_context():
     db.create_all()
     
@@ -112,7 +144,12 @@ with app.app_context():
     print("Sample questions added!")
     
     # Seed UPSC CSE Sociology syllabus
-    from app.services.syllabus_service import seed_upsc_sociology_syllabus
-    seed_upsc_sociology_syllabus()
+    # Seed syllabus data
+    try:
+        from app.services.syllabus_service import seed_upsc_sociology_syllabus
+        seed_upsc_sociology_syllabus()
+    except Exception as e:
+        print(f"Warning: Could not seed syllabus data: {e}")
+        print("You can run reorganize_syllabus_hierarchy.py separately to seed syllabus data.")
     
     print("Database initialized successfully!")

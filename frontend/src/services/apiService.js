@@ -123,4 +123,30 @@ export const apiService = {
     const response = await api.get('/syllabus-progress/recommendations');
     return response.data;
   },
+
+  // Topper Analysis
+  async analyzeAnswer(answerId) {
+    const response = await api.get(`/topper-analysis/analyze/${answerId}`);
+    return response.data;
+  },
+
+  async getTopperAnswers(questionId) {
+    const response = await api.get(`/topper-analysis/topper-answers/${questionId}`);
+    return response.data;
+  },
+
+  async getUserAnalysisHistory() {
+    const response = await api.get('/topper-analysis/user-analysis-history');
+    return response.data;
+  },
+
+  async getSimilarityStats() {
+    const response = await api.get('/topper-analysis/similarity-stats');
+    return response.data;
+  },
+
+  async addTopperAnswer(data) {
+    const response = await api.post('/topper-analysis/add-topper-answer', data);
+    return response.data;
+  },
 }; 

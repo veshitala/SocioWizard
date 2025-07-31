@@ -93,8 +93,10 @@ def get_progress_timeline():
         
         timeline = []
         for data in timeline_data:
+            # Handle both string and datetime objects
+            date_str = data.date.isoformat() if hasattr(data.date, 'isoformat') else str(data.date)
             timeline.append({
-                'date': data.date.isoformat(),
+                'date': date_str,
                 'answers_count': data.answers_count,
                 'average_score': round(data.avg_score, 2) if data.avg_score else 0
             })
@@ -104,6 +106,7 @@ def get_progress_timeline():
         }), 200
         
     except Exception as e:
+        print(f"Timeline API Error: {str(e)}")
         return jsonify({'error': 'Failed to retrieve timeline data'}), 500
 
 @progress_bp.route('/topics', methods=['GET'])

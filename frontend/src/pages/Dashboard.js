@@ -138,7 +138,7 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Quick Actions */}
         <div className="lg:col-span-1">
           <div className="card">
@@ -176,7 +176,7 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
           <div className="card">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
@@ -190,17 +190,32 @@ const Dashboard = () => {
             <div className="space-y-3">
               {recentAnswers.length > 0 ? (
                 recentAnswers.map((answer) => (
-                  <div key={answer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {answer.question?.question_text?.substring(0, 50)}...
-                      </p>
+                  <div key={answer.id} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p 
+                          className="text-sm font-medium text-gray-900 leading-tight overflow-hidden cursor-help" 
+                          style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical'
+                          }}
+                          title={answer.question?.question_text || 'Question not available'}
+                        >
+                          {answer.question?.question_text || 'Question not available'}
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                        {new Date(answer.submitted_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
                       <p className="text-xs text-gray-500">
                         Score: {answer.overall_score?.toFixed(1) || 'N/A'}
                       </p>
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(answer.submitted_at).toLocaleDateString()}
+                      <p className="text-xs text-gray-400">
+                        {answer.topic || 'General'}
+                      </p>
                     </div>
                   </div>
                 ))

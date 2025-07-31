@@ -8,7 +8,10 @@ import {
   Users,
   Lightbulb,
   ArrowLeft,
-  Star
+  Star,
+  Trophy,
+  Target,
+  BarChart3
 } from 'lucide-react';
 
 const Evaluate = () => {
@@ -21,7 +24,8 @@ const Evaluate = () => {
       setEvaluationData({
         evaluation: location.state.evaluation,
         answer: location.state.answer,
-        question: location.state.question
+        question: location.state.question,
+        topperAnalysis: location.state.topperAnalysis
       });
     } else {
       // If no evaluation data, redirect to practice
@@ -37,7 +41,7 @@ const Evaluate = () => {
     );
   }
 
-  const { evaluation, answer, question } = evaluationData;
+  const { evaluation, answer, question, topperAnalysis } = evaluationData;
 
   const getScoreColor = (score) => {
     if (score >= 8) return 'text-green-600';
@@ -113,6 +117,53 @@ const Evaluate = () => {
           </p>
         </div>
       </div>
+
+      {/* Topper Analysis */}
+      {topperAnalysis && (
+        <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Trophy className="h-6 w-6 text-yellow-600 mr-2" />
+              <h2 className="text-2xl font-bold text-gray-900">Topper Similarity Score</h2>
+            </div>
+            <div className="text-5xl font-bold text-yellow-600">
+              {topperAnalysis.similarity_analysis?.overall_similarity ? Math.round(topperAnalysis.similarity_analysis.overall_similarity * 100) : 0}%
+            </div>
+            <div className="text-lg text-gray-600">Similarity to Topper Answers</div>
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {topperAnalysis.similarity_analysis?.content_similarity ? Math.round(topperAnalysis.similarity_analysis.content_similarity * 100) : 0}%
+                </div>
+                <div className="text-xs text-gray-500">Content</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {topperAnalysis.similarity_analysis?.keyword_similarity ? Math.round(topperAnalysis.similarity_analysis.keyword_similarity * 100) : 0}%
+                </div>
+                <div className="text-xs text-gray-500">Keywords</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {topperAnalysis.similarity_analysis?.structure_similarity ? Math.round(topperAnalysis.similarity_analysis.structure_similarity * 100) : 0}%
+                </div>
+                <div className="text-xs text-gray-500">Structure</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">
+                  {topperAnalysis.similarity_analysis?.theory_similarity ? Math.round(topperAnalysis.similarity_analysis.theory_similarity * 100) : 0}%
+                </div>
+                <div className="text-xs text-gray-500">Theories</div>
+              </div>
+            </div>
+            {topperAnalysis.feedback?.text && (
+              <div className="mt-4 p-3 bg-white rounded-lg border">
+                <p className="text-sm text-gray-700">{topperAnalysis.feedback.text}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Detailed Scores */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

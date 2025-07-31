@@ -80,12 +80,20 @@ const AnswerPractice = () => {
         topic: currentQuestion.topic
       });
       
+      // Show success message with topper analysis info
+      if (response.topper_analysis) {
+        alert('Answer submitted successfully! Topper analysis is available. Check the Topper Analysis page for detailed comparison.');
+      } else {
+        alert('Answer submitted successfully!');
+      }
+      
       // Navigate to evaluation page with the submitted answer
       navigate('/evaluate', { 
         state: { 
           answer: response.answer,
           evaluation: response.evaluation,
-          question: currentQuestion
+          question: currentQuestion,
+          topperAnalysis: response.topper_analysis
         }
       });
     } catch (error) {

@@ -1,9 +1,0 @@
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1Mzc2NDY5NywianRpIjoiMjJmNzVkNTUtMGYyZi00NjE5LTk5ZjUtOTkzOTAwN2FiYmM0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzUzNzY0Njk3LCJleHAiOjE3NTM4NTEwOTd9.bL5ihBe-sVzO8WN05Y5kSaGM_TAglfhoqPcGeWwvExw",
-  "message": "Login successful",
-  "user": {
-    "email": "demo@sociowizard.com",
-    "id": 1,
-    "username": "demo_user"
-  }
-}

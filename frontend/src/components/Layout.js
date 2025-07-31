@@ -11,7 +11,8 @@ import {
   X,
   LogOut,
   User,
-  Target
+  Target,
+  Trophy
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -26,6 +27,7 @@ const Layout = ({ children }) => {
     { name: 'Evaluate', href: '/evaluate', icon: CheckCircle },
     { name: 'Track Progress', href: '/progress', icon: BarChart3 },
     { name: 'Syllabus Progress', href: '/syllabus-progress', icon: Target },
+    { name: 'Topper Analysis', href: '/topper-analysis', icon: Trophy },
     { name: 'PYQs', href: '/pyqs', icon: FileText },
   ];
 

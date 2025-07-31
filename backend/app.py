@@ -26,12 +26,14 @@ def create_app():
     from app.routes.answers import answers_bp
     from app.routes.progress import progress_bp
     from app.routes.syllabus_progress import syllabus_progress_bp
+    from app.routes.topper_analysis import topper_analysis_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(questions_bp, url_prefix='/api/questions')
     app.register_blueprint(answers_bp, url_prefix='/api/answers')
     app.register_blueprint(progress_bp, url_prefix='/api/progress')
     app.register_blueprint(syllabus_progress_bp, url_prefix='/api/syllabus-progress')
+    app.register_blueprint(topper_analysis_bp, url_prefix='/api/topper-analysis')
     
     # Database initialization will be done separately
     

@@ -11,7 +11,9 @@ import {
   Star,
   Trophy,
   Target,
-  BarChart3
+  BarChart3,
+  FileText,
+  Download
 } from 'lucide-react';
 
 const Evaluate = () => {
@@ -25,7 +27,8 @@ const Evaluate = () => {
         evaluation: location.state.evaluation,
         answer: location.state.answer,
         question: location.state.question,
-        topperAnalysis: location.state.topperAnalysis
+        topperAnalysis: location.state.topperAnalysis,
+        fileInfo: location.state.fileInfo
       });
     } else {
       // If no evaluation data, redirect to practice
@@ -41,7 +44,7 @@ const Evaluate = () => {
     );
   }
 
-  const { evaluation, answer, question, topperAnalysis } = evaluationData;
+  const { evaluation, answer, question, topperAnalysis, fileInfo } = evaluationData;
 
   const getScoreColor = (score) => {
     if (score >= 8) return 'text-green-600';
@@ -90,6 +93,30 @@ const Evaluate = () => {
         </div>
       </div>
 
+      {/* File Information */}
+      {fileInfo && (
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <FileText className="h-5 w-5 text-primary-600" />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Uploaded File</h3>
+                <p className="text-sm text-gray-600">
+                  {fileInfo.original_name} ({(fileInfo.file_size / 1024).toFixed(1)} KB)
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => window.open(`/api/file-upload/download/${answer.id}`, '_blank')}
+              className="btn-secondary flex items-center text-sm"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Question */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Question</h3>
@@ -102,68 +129,38 @@ const Evaluate = () => {
       </div>
 
       {/* Overall Score */}
-      <div className="card bg-gradient-to-r from-primary-50 to-blue-50 border-primary-200">
+      <div className="card">
         <div className="text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Star className="h-6 w-6 text-yellow-500 mr-2" />
+          <div className="flex items-center justify-center mb-4">
+            <Trophy className="h-8 w-8 text-yellow-500 mr-3" />
             <h2 className="text-2xl font-bold text-gray-900">Overall Score</h2>
           </div>
           <div className={`text-5xl font-bold ${getScoreColor(evaluation.overall_score)}`}>
             {evaluation.overall_score.toFixed(1)}
           </div>
-          <div className="text-lg text-gray-600">out of 10</div>
-          <p className="text-sm text-gray-500 mt-2">
-            Submitted on {new Date(answer.submitted_at).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Topper Analysis */}
-      {topperAnalysis && (
-        <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <Trophy className="h-6 w-6 text-yellow-600 mr-2" />
-              <h2 className="text-2xl font-bold text-gray-900">Topper Similarity Score</h2>
-            </div>
-            <div className="text-5xl font-bold text-yellow-600">
-              {topperAnalysis.similarity_analysis?.overall_similarity ? Math.round(topperAnalysis.similarity_analysis.overall_similarity * 100) : 0}%
-            </div>
-            <div className="text-lg text-gray-600">Similarity to Topper Answers</div>
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {topperAnalysis.similarity_analysis?.content_similarity ? Math.round(topperAnalysis.similarity_analysis.content_similarity * 100) : 0}%
-                </div>
-                <div className="text-xs text-gray-500">Content</div>
+          <div className="text-lg text-gray-500">out of 10</div>
+          <div className="mt-4">
+            {evaluation.overall_score >= 8 && (
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <Star className="h-4 w-4 mr-1" />
+                Excellent Performance
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {topperAnalysis.similarity_analysis?.keyword_similarity ? Math.round(topperAnalysis.similarity_analysis.keyword_similarity * 100) : 0}%
-                </div>
-                <div className="text-xs text-gray-500">Keywords</div>
+            )}
+            {evaluation.overall_score >= 6 && evaluation.overall_score < 8 && (
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                <Target className="h-4 w-4 mr-1" />
+                Good Performance
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {topperAnalysis.similarity_analysis?.structure_similarity ? Math.round(topperAnalysis.similarity_analysis.structure_similarity * 100) : 0}%
-                </div>
-                <div className="text-xs text-gray-500">Structure</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">
-                  {topperAnalysis.similarity_analysis?.theory_similarity ? Math.round(topperAnalysis.similarity_analysis.theory_similarity * 100) : 0}%
-                </div>
-                <div className="text-xs text-gray-500">Theories</div>
-              </div>
-            </div>
-            {topperAnalysis.feedback?.text && (
-              <div className="mt-4 p-3 bg-white rounded-lg border">
-                <p className="text-sm text-gray-700">{topperAnalysis.feedback.text}</p>
+            )}
+            {evaluation.overall_score < 6 && (
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                Needs Improvement
               </div>
             )}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Detailed Scores */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -175,16 +172,16 @@ const Evaluate = () => {
         {renderScoreCard(
           'Content',
           evaluation.content_score,
-          'Completeness, accuracy, and relevance of information'
+          'Completeness, accuracy, and relevance of content'
         )}
         {renderScoreCard(
           'Sociological Depth',
           evaluation.sociological_depth_score,
-          'Use of theories, concepts, and sociological perspective'
+          'Theoretical understanding and analytical approach'
         )}
       </div>
 
-      {/* Detailed Feedback */}
+      {/* Feedback */}
       <div className="card">
         <div className="flex items-center mb-4">
           <Lightbulb className="h-5 w-5 text-yellow-500 mr-2" />
@@ -195,97 +192,138 @@ const Evaluate = () => {
         </div>
       </div>
 
-      {/* Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Keywords Used */}
-        <div className="card">
-          <div className="flex items-center mb-4">
-            <BookOpen className="h-5 w-5 text-blue-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Keywords Used</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {evaluation.keywords_used && evaluation.keywords_used.length > 0 ? (
-              evaluation.keywords_used.map((keyword, index) => (
+      {/* Strengths and Areas for Improvement */}
+      {(evaluation.strengths || evaluation.areas_for_improvement) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {evaluation.strengths && evaluation.strengths.length > 0 && (
+            <div className="card">
+              <div className="flex items-center mb-4">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Strengths</h3>
+              </div>
+              <ul className="space-y-2">
+                {evaluation.strengths.map((strength, index) => (
+                  <li key={index} className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {evaluation.areas_for_improvement && evaluation.areas_for_improvement.length > 0 && (
+            <div className="card">
+              <div className="flex items-center mb-4">
+                <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Areas for Improvement</h3>
+              </div>
+              <ul className="space-y-2">
+                {evaluation.areas_for_improvement.map((area, index) => (
+                  <li key={index} className="flex items-start">
+                    <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{area}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Keywords, Thinkers, and Theories */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {evaluation.keywords_used && evaluation.keywords_used.length > 0 && (
+          <div className="card">
+            <div className="flex items-center mb-4">
+              <BookOpen className="h-5 w-5 text-blue-500 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Keywords Used</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {evaluation.keywords_used.map((keyword, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                  className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
                 >
                   {keyword}
                 </span>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">No specific keywords identified</p>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Thinkers Mentioned */}
-        <div className="card">
-          <div className="flex items-center mb-4">
-            <Users className="h-5 w-5 text-green-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Thinkers Mentioned</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {evaluation.thinkers_mentioned && evaluation.thinkers_mentioned.length > 0 ? (
-              evaluation.thinkers_mentioned.map((thinker, index) => (
+        {evaluation.thinkers_mentioned && evaluation.thinkers_mentioned.length > 0 && (
+          <div className="card">
+            <div className="flex items-center mb-4">
+              <Users className="h-5 w-5 text-purple-500 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Thinkers Mentioned</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {evaluation.thinkers_mentioned.map((thinker, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
+                  className="px-2 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
                 >
                   {thinker}
                 </span>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">No specific thinkers mentioned</p>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Theories Referenced */}
-        <div className="card">
-          <div className="flex items-center mb-4">
-            <TrendingUp className="h-5 w-5 text-purple-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Theories Referenced</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {evaluation.theories_referenced && evaluation.theories_referenced.length > 0 ? (
-              evaluation.theories_referenced.map((theory, index) => (
+        {evaluation.theories_referenced && evaluation.theories_referenced.length > 0 && (
+          <div className="card">
+            <div className="flex items-center mb-4">
+              <BarChart3 className="h-5 w-5 text-indigo-500 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Theories Referenced</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {evaluation.theories_referenced.map((theory, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                  className="px-2 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full"
                 >
                   {theory}
                 </span>
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm">No specific theories referenced</p>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Your Answer */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Answer</h3>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-700 whitespace-pre-wrap">{answer.answer_text}</p>
+      {/* Topper Analysis Link */}
+      {topperAnalysis && (
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Topper Analysis Available</h3>
+                <p className="text-sm text-gray-600">Compare your answer with topper answers</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/topper-analysis')}
+              className="btn-primary"
+            >
+              View Analysis
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4">
         <button
           onClick={() => navigate('/practice')}
-          className="btn-primary flex items-center"
+          className="btn-primary"
         >
-          <BookOpen className="h-4 w-4 mr-2" />
           Practice Another Question
         </button>
         <button
           onClick={() => navigate('/progress')}
-          className="btn-secondary flex items-center"
+          className="btn-secondary"
         >
-          <TrendingUp className="h-4 w-4 mr-2" />
           View Progress
         </button>
       </div>

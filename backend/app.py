@@ -27,6 +27,7 @@ def create_app():
     from app.routes.progress import progress_bp
     from app.routes.syllabus_progress import syllabus_progress_bp
     from app.routes.topper_analysis import topper_analysis_bp
+    from app.routes.file_upload import file_upload_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(questions_bp, url_prefix='/api/questions')
@@ -34,6 +35,7 @@ def create_app():
     app.register_blueprint(progress_bp, url_prefix='/api/progress')
     app.register_blueprint(syllabus_progress_bp, url_prefix='/api/syllabus-progress')
     app.register_blueprint(topper_analysis_bp, url_prefix='/api/topper-analysis')
+    app.register_blueprint(file_upload_bp, url_prefix='/api/file-upload')
     
     # Database initialization will be done separately
     

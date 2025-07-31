@@ -15,12 +15,23 @@ An AI-powered web application designed to help UPSC aspirants master sociology t
 - **User Authentication**: Secure login/signup system
 - **Answer Management**: Store and retrieve user answers with metadata
 - **PYQ Service**: Serve categorized questions from database
-- **AI Evaluation**: LLM integration for answer assessment (placeholder)
+- **AI Evaluation**: ChatGPT integration for intelligent answer assessment
+- **File Upload**: Support for PDF, DOCX, and DOC answer uploads
+- **AI Suggestions**: Real-time recommendations for answer improvement
+
+### AI-Powered Features
+- **ChatGPT Integration**: Advanced answer evaluation using OpenAI's GPT-4
+- **File Processing**: Automatic text extraction from uploaded documents
+- **Smart Feedback**: Detailed analysis with strengths and improvement areas
+- **Keyword Extraction**: Automatic identification of sociological concepts
+- **Thinker Recognition**: Detection of sociological thinkers mentioned
+- **Theory Analysis**: Identification of sociological theories referenced
 
 ### Bonus Features
 - **Flashcards**: Interactive learning from PYQ themes
 - **Daily Tips**: Motivational quotes and sociology facts
 - **Topic Tagging**: Automatic categorization using NLP
+- **Topper Analysis**: Compare answers with model responses
 
 ## Project Structure
 
@@ -36,9 +47,11 @@ SocioWizard/
 │   ├── app/
 │   │   ├── models/         # Database models
 │   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic
+│   │   ├── services/       # Business logic (including ChatGPT)
 │   │   └── utils/          # Helper functions
-│   └── requirements.txt    # Python dependencies
+│   ├── uploads/            # File upload storage
+│   ├── requirements.txt    # Python dependencies
+│   └── README_SETUP.md     # ChatGPT setup guide
 └── README.md              # This file
 ```
 
@@ -48,12 +61,22 @@ SocioWizard/
 - Python 3.8+ installed
 - Node.js 16+ and npm installed
 - Git (for cloning the repository)
+- OpenAI API key (for ChatGPT features)
 
 ### Quick Start (macOS/Linux)
 1. Clone the repository: `git clone <repository-url>`
 2. Navigate to project: `cd SocioWizard`
 3. Run setup script: `chmod +x setup.sh && ./setup.sh`
-4. Start both services: `./start.sh`
+4. Configure ChatGPT API (see ChatGPT Setup below)
+5. Start both services: `./start.sh`
+
+### ChatGPT Setup (Optional but Recommended)
+1. Get an OpenAI API key from [OpenAI Platform](https://platform.openai.com/)
+2. Create `.env` file in backend directory:
+   ```env
+   OPENAI_API_KEY=your-api-key-here
+   ```
+3. See `backend/README_SETUP.md` for detailed setup instructions
 
 ### Manual Setup
 
@@ -65,7 +88,8 @@ SocioWizard/
    - macOS/Linux: `source venv/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
 5. Initialize database: `python init_db.py`
-6. Run the server: `python app.py`
+6. (Optional) Configure ChatGPT API key in `.env` file
+7. Run the server: `python app.py`
    - **Note**: Backend runs on port 5001 (not 5000 due to macOS AirPlay conflict)
 
 #### Frontend Setup
@@ -78,7 +102,8 @@ SocioWizard/
 1. Clone the repository: `git clone <repository-url>`
 2. Navigate to project: `cd SocioWizard`
 3. Run setup script: `setup.bat`
-4. Start both services: `start.bat`
+4. Configure ChatGPT API (optional)
+5. Start both services: `start.bat`
 
 ### Accessing the Application
 - **Frontend**: http://localhost:3000
@@ -87,7 +112,34 @@ SocioWizard/
   - Username: `demo_user`
   - Password: `demo123`
 
-### Troubleshooting
+## New Features
+
+### File Upload Support
+- Upload PDF, DOCX, or DOC files containing your answers
+- Automatic text extraction and AI evaluation
+- Download uploaded files for reference
+- Support for handwritten and typed answers
+
+### AI-Powered Evaluation
+- **ChatGPT Integration**: Advanced evaluation using GPT-4
+- **Detailed Feedback**: Structure, content, and theoretical analysis
+- **Strengths & Improvements**: Specific areas to focus on
+- **Keyword Analysis**: Automatic concept identification
+- **Thinker Recognition**: Detection of sociological thinkers
+- **Theory Analysis**: Identification of sociological theories
+
+### AI Suggestions
+- Real-time recommendations while writing answers
+- Structure, content, and theoretical suggestions
+- Examples and concepts to include
+- Thinkers and theories to mention
+
+### Fallback Mode
+- Works without ChatGPT API (basic evaluation)
+- Graceful degradation when API is unavailable
+- No interruption to core functionality
+
+## Troubleshooting
 
 #### Port 5000 Already in Use (macOS)
 If you see "Connection refused" on port 5000, this is because macOS uses port 5000 for AirPlay. The application is configured to use port 5001 instead.
@@ -96,6 +148,16 @@ If you see "Connection refused" on port 5000, this is because macOS uses port 50
 If you encounter database errors:
 1. Delete the `backend/instance/sociowizard.db` file
 2. Run `python init_db.py` again to recreate the database
+
+#### ChatGPT API Issues
+1. Ensure your API key is correct and has sufficient credits
+2. Check the `.env` file is in the backend directory
+3. The app will work with basic evaluation if ChatGPT is unavailable
+
+#### File Upload Issues
+1. Ensure files are PDF, DOCX, or DOC format
+2. Check file size (recommended under 5MB)
+3. Some PDFs with images may not extract text properly
 
 #### Import Errors
 If you see "ImportError: cannot import name 'db'", ensure you're running the backend from the correct directory:

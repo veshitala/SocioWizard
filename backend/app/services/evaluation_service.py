@@ -1,16 +1,40 @@
 import random
 import re
 from typing import Dict, List
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Import ChatGPT service
+try:
+    from .chatgpt_service import ChatGPTService
+    chatgpt_available = True
+except ImportError:
+    chatgpt_available = False
 
 def evaluate_answer(answer_text: str, question) -> Dict:
     """
-    Evaluate an answer using AI/LLM (placeholder implementation)
-    This can be replaced with actual OpenAI API or other LLM integration
+    Evaluate an answer using AI/LLM
+    First tries ChatGPT API, falls back to basic evaluation if not available
     """
     
-    # Placeholder evaluation logic
-    # In production, this would call an actual LLM API
+    # Try ChatGPT API if available and configured
+    if chatgpt_available and os.getenv('OPENAI_API_KEY'):
+        try:
+            chatgpt_service = ChatGPTService()
+            question_text = question.question_text if question else "General Sociology Question"
+            return chatgpt_service.evaluate_answer(answer_text, question_text)
+        except Exception as e:
+            print(f"ChatGPT evaluation failed, using fallback: {e}")
     
+    # Fallback to basic evaluation
+    return _basic_evaluation(answer_text, question)
+
+def _basic_evaluation(answer_text: str, question) -> Dict:
+    """
+    Basic evaluation logic (fallback when ChatGPT is not available)
+    """
     # Analyze answer length and structure
     word_count = len(answer_text.split())
     paragraphs = len([p for p in answer_text.split('\n\n') if p.strip()])
@@ -47,8 +71,40 @@ def evaluate_answer(answer_text: str, question) -> Dict:
         'feedback': feedback,
         'keywords_used': keywords_used,
         'thinkers_mentioned': thinkers_mentioned,
-        'theories_referenced': theories_referenced
+        'theories_referenced': theories_referenced,
+        'strengths': [],
+        'areas_for_improvement': []
     }
+
+def evaluate_uploaded_file(file_content: bytes, file_type: str, question) -> Dict:
+    """
+    Evaluate answer from uploaded file
+    """
+    if chatgpt_available and os.getenv('OPENAI_API_KEY'):
+        try:
+            chatgpt_service = ChatGPTService()
+            question_text = question.question_text if question else "General Sociology Question"
+            return chatgpt_service.evaluate_uploaded_answer(file_content, file_type, question_text)
+        except Exception as e:
+            print(f"ChatGPT file evaluation failed: {e}")
+            return {"error": "Failed to evaluate uploaded file"}
+    else:
+        return {"error": "File evaluation requires ChatGPT API"}
+
+def get_ai_suggestions(answer_text: str, question) -> Dict:
+    """
+    Get AI-powered suggestions for improving the answer
+    """
+    if chatgpt_available and os.getenv('OPENAI_API_KEY'):
+        try:
+            chatgpt_service = ChatGPTService()
+            question_text = question.question_text if question else "General Sociology Question"
+            return chatgpt_service.get_ai_suggestions(answer_text, question_text)
+        except Exception as e:
+            print(f"ChatGPT suggestions failed: {e}")
+            return {"error": "Failed to generate suggestions"}
+    else:
+        return {"error": "AI suggestions require ChatGPT API"}
 
 def extract_keywords(text: str) -> List[str]:
     """Extract sociological keywords from text (placeholder)"""

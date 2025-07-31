@@ -7,7 +7,10 @@ import {
   Filter,
   FileText,
   Calendar,
-  Tag
+  Tag,
+  Upload,
+  Download,
+  Lightbulb
 } from 'lucide-react';
 
 const AnswerPractice = () => {
@@ -15,6 +18,11 @@ const AnswerPractice = () => {
   const [answerText, setAnswerText] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [filters, setFilters] = useState({
     theme: '',
     topic: '',
@@ -59,6 +67,9 @@ const AnswerPractice = () => {
       console.log('Fetched question:', response.question);
       setCurrentQuestion(response.question);
       setAnswerText('');
+      setSelectedFile(null);
+      setSuggestions(null);
+      setShowSuggestions(false);
     } catch (error) {
       console.error('Error fetching random question:', error);
     } finally {
@@ -101,6 +112,67 @@ const AnswerPractice = () => {
       alert('Failed to submit answer. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await apiService.uploadAnswerFile(selectedFile, currentQuestion.id);
+      
+      alert('Answer uploaded and evaluated successfully!');
+      
+      // Navigate to evaluation page with the uploaded answer
+      navigate('/evaluate', { 
+        state: { 
+          answer: response.answer,
+          evaluation: response.evaluation,
+          question: currentQuestion,
+          fileInfo: response.file_info
+        }
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Failed to upload file. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+      if (allowedTypes.includes(file.type)) {
+        setSelectedFile(file);
+      } else {
+        alert('Please select a PDF, DOCX, or DOC file.');
+        event.target.value = '';
+      }
+    }
+  };
+
+  const getAISuggestions = async () => {
+    if (!answerText.trim()) {
+      alert('Please write an answer before getting suggestions.');
+      return;
+    }
+
+    setLoadingSuggestions(true);
+    try {
+      const response = await apiService.getAISuggestions(answerText, currentQuestion.id);
+      setSuggestions(response.suggestions);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error('Error getting suggestions:', error);
+      alert('Failed to get AI suggestions. Please try again.');
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
@@ -234,12 +306,54 @@ const AnswerPractice = () => {
         </div>
       )}
 
+      {/* File Upload Section */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Answer File (Optional)</h3>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <input
+              type="file"
+              accept=".pdf,.docx,.doc"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+            />
+            <button
+              onClick={handleFileUpload}
+              disabled={!selectedFile || uploading}
+              className="btn-primary flex items-center"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {uploading ? 'Uploading...' : 'Upload & Evaluate'}
+            </button>
+          </div>
+          {selectedFile && (
+            <div className="text-sm text-gray-600">
+              Selected file: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+            </div>
+          )}
+          <div className="text-sm text-gray-500">
+            <p>📄 Supported formats: PDF, DOCX, DOC</p>
+            <p>💡 Upload your handwritten or typed answer for AI evaluation</p>
+          </div>
+        </div>
+      </div>
+
       {/* Answer Editor */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Your Answer</h3>
-          <div className="text-sm text-gray-500">
-            {answerText.length} characters
+          <div className="flex items-center space-x-2">
+            <div className="text-sm text-gray-500">
+              {answerText.length} characters
+            </div>
+            <button
+              onClick={getAISuggestions}
+              disabled={!answerText.trim() || loadingSuggestions}
+              className="btn-secondary flex items-center text-sm"
+            >
+              <Lightbulb className="h-4 w-4 mr-1" />
+              {loadingSuggestions ? 'Getting Suggestions...' : 'AI Suggestions'}
+            </button>
           </div>
         </div>
         
@@ -268,6 +382,75 @@ const AnswerPractice = () => {
           </button>
         </div>
       </div>
+
+      {/* AI Suggestions */}
+      {showSuggestions && suggestions && (
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Suggestions for Improvement</h3>
+          <div className="space-y-4">
+            {suggestions.structure_suggestions && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Structure Suggestions:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.structure_suggestions.map((suggestion, index) => (
+                    <li key={index}>{suggestion}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {suggestions.content_suggestions && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Content Suggestions:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.content_suggestions.map((suggestion, index) => (
+                    <li key={index}>{suggestion}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {suggestions.theoretical_suggestions && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Theoretical Suggestions:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.theoretical_suggestions.map((suggestion, index) => (
+                    <li key={index}>{suggestion}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {suggestions.examples_to_add && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Examples to Add:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.examples_to_add.map((example, index) => (
+                    <li key={index}>{example}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {suggestions.thinkers_to_mention && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Thinkers to Mention:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.thinkers_to_mention.map((thinker, index) => (
+                    <li key={index}>{thinker}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {suggestions.concepts_to_include && (
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">Concepts to Include:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                  {suggestions.concepts_to_include.map((concept, index) => (
+                    <li key={index}>{concept}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && (

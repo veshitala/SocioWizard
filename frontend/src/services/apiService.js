@@ -82,6 +82,33 @@ export const apiService = {
     return response.data;
   },
 
+  // File Upload
+  async uploadAnswerFile(file, questionId) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('question_id', questionId);
+    
+    const response = await api.post('/file-upload/upload-answer', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  async getAISuggestions(answerText, questionId) {
+    const response = await api.post('/file-upload/get-suggestions', {
+      answer_text: answerText,
+      question_id: questionId
+    });
+    return response.data;
+  },
+
+  async downloadAnswerFile(answerId) {
+    const response = await api.get(`/file-upload/download/${answerId}`);
+    return response.data;
+  },
+
   // Progress
   async getProgressSummary() {
     const response = await api.get('/progress/summary');
